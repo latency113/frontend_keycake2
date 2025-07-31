@@ -1,0 +1,39 @@
+/* Custom styles if needed, e.g., for scrollbar */
+/* Customize scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Specific styling for the table in CakeDetailsTable */
+.custom-table th, .custom-table td {
+  padding: 8px 10px; /* Adjust padding */
+  border: 1px solid #e5e7eb; /* Light gray border */
+}
+
+.custom-table thead th {
+  background-color: #f9fafb; /* Lighter background for header */
+  font-weight: 600; /* Semi-bold font */
+}
+
+.custom-table tbody tr:nth-child(even) {
+  background-color: #fcfcfc; /* Slightly different background for even rows */
+}
+
+.custom-table tbody tr:hover {
+  background-color: #f5f5f5; /* Hover effect */
+}
