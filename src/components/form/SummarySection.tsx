@@ -18,15 +18,13 @@ const SummarySection: React.FC<SummarySectionProps> = ({
   grandTotal,
   discount,
   netPayable,
-  amountReceived,
   remainingBalance,
   onDiscountChange,
-  onAmountReceivedChange,
   seller,
 }) => {
   return (
     <div className="mt-8 pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 items-end">
-      <div className="md:col-span-2 flex justify-end">
+      <div className="md:col-span-2 flex ">
         <div className="flex items-center space-x-2">
           <span className="text-sm font-bold text-gray-700">รวม</span>
           <span className="text-xl font-bold text-blue-700 w-32 text-right">
@@ -36,11 +34,11 @@ const SummarySection: React.FC<SummarySectionProps> = ({
         </div>
       </div>
 
-      <div className="md:col-span-2 flex items-center justify-end text-orange-600 font-semibold mb-2">
-        <span>ยอดเงินได้จำป้อนละ 100 บาท</span>
+      <div className="md:col-span-2 flex items-center  text-orange-600 font-semibold mb-2">
+        <span>ยอดเงินได้จำปอนด์ละ 100 บาท</span>
       </div>
 
-      <div className="flex items-center justify-end md:col-start-2">
+      <div className="flex items-center  md:col-start-2">
         <label htmlFor="discount" className="text-sm font-medium text-gray-700 mr-2">
           ส่วนลด (10 X)
         </label>
@@ -57,7 +55,7 @@ const SummarySection: React.FC<SummarySectionProps> = ({
         />
       </div>
 
-      <div className="flex items-center justify-end md:col-start-2">
+      <div className="flex items-center  md:col-start-2">
         <label htmlFor="netPayable" className="text-sm font-medium text-gray-700 mr-2">
           สุทธิที่จ่าย
         </label>
@@ -66,24 +64,7 @@ const SummarySection: React.FC<SummarySectionProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-end md:col-start-2">
-        <label htmlFor="amountReceived" className="text-sm font-medium text-gray-700 mr-2">
-          ยอดเงินเข้า
-        </label>
-        <InputField
-          label="ยอดเงินเข้า"
-          name="amountReceived"
-          value={amountReceived}
-          onChange={onAmountReceivedChange}
-          type="number"
-          min={0}
-          className="flex-shrink-0 w-24 mb-0"
-          inputClassName="p-2 text-right"
-          labelClassName="hidden"
-        />
-      </div>
-
-      <div className="flex items-center justify-end md:col-start-2">
+      <div className="flex items-center  md:col-start-2">
         <label htmlFor="remainingBalance" className="text-sm font-medium text-gray-700 mr-2">
           ชำระเพิ่มเติม
         </label>
@@ -92,7 +73,7 @@ const SummarySection: React.FC<SummarySectionProps> = ({
         </div>
       </div>
 
-      <div className="md:col-start-2 flex items-center justify-end mt-4">
+      <div className="md:col-start-2 flex items-center  mt-4">
         <label htmlFor="seller" className="text-sm font-medium text-gray-700 mr-2">
           ผู้ขายเค้ก
         </label>

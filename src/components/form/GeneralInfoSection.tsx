@@ -128,7 +128,7 @@ const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
           onChange={handleChange}
         />
         <InputField
-          label="วันที่จ่ายเค้ก"
+          label="วันที่รับเค้ก"
           name="saleDate"
           value={formData.saleDate}
           onChange={handleChange}
