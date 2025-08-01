@@ -1,7 +1,8 @@
 // src/components/form/OrderForm.tsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { OrderFormState, CakeItem, InputChangeEvent } from '../../types';
 import { calculateGrandTotal, calculateNetPayable, calculateRemainingBalance, calculateCakeItemTotals } from '../../utils/calculations';
+import { createOrder, getBranchs, getYears } from '../../utils/api';
 
 import GeneralInfoSection from './GeneralInfoSection';
 import CakeDetailsTable from './CakeDetailTable';
@@ -16,26 +17,41 @@ const initialCakeItems: CakeItem[] = [
 
 const OrderForm: React.FC = () => {
   const [formData, setFormData] = useState<OrderFormState>(() => {
-    const initialItemsWithCalculations = initialCakeItems.map(calculateCakeItemTotals);
     return {
-      bookNo: '',
-      orderNo: '',
-      type: 'chilled', // Default
-      customerName: '',
-      fName: '',
-      lastName: '',
-      classLevel: '',
-      room: '',
-      department: '',
-      phoneNumber: '',
-      advisorTeacher: '',
-      saleDate: new Date().toISOString().split('T')[0], // Current date
-      cakeItems: initialItemsWithCalculations,
+      customerName: "",
+      room_id: "",
+      team_id: "",
+      orderDate: new Date().toISOString().split('T')[0],
+      totalPrice: 0,
+      book_number: 0,
+      number: 0,
+      phone: "",
+      pickup_date: new Date().toISOString().split('T')[0],
+      depository: "",
+      advisor: "",
+      orderItems: [],
+      cakeItems: initialCakeItems,
       discount: 0,
       amountReceived: 0,
-      seller: 'A', // Default seller
+      seller: ""
     };
   });
+  const [branches, setBranches] = useState([]);
+  const [years, setYears] = useState([]);
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        const branchesData = await getBranchs();
+        const yearsData = await getYears();
+        setBranches(branchesData);
+        setYears(yearsData);
+      } catch (error) {
+        console.error("Error fetching initial data:", error);
+      }
+    };
+    fetchInitialData();
+  }, []);
 
   const handleGeneralInfoChange = (e: InputChangeEvent) => {
     const { name, value } = e.target;
@@ -60,34 +76,59 @@ const OrderForm: React.FC = () => {
   const netPayable = calculateNetPayable(grandTotal, formData.discount);
   const remainingBalance = calculateRemainingBalance(netPayable, formData.amountReceived);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form Submitted:', formData);
-    // Here you would typically send data to a backend API
-    // Example: fetch('/api/orders', { method: 'POST', body: JSON.stringify(formData) })
-    alert('Form submitted! Check console for data.');
+    try {
+      // Transform cake items into order items
+      const orderItems = formData.cakeItems
+        .filter(item => item.totalAmount > 0)
+        .map(item => ({
+          product_id: item.id,
+          pound: item.totalPounds,
+          quantity: item.qty1Pound + item.qty2Pound + item.qty3Pound + item.qty4Pound + item.qty5Pound + item.qtyPieces,
+          unitPrice: item.pricePerPound,
+          subtotal: item.totalAmount
+        }));
+
+      // Prepare order data
+      const orderData = {
+        ...formData,
+        orderItems,
+        totalPrice: grandTotal
+      };
+
+      // Send to API
+      const response = await createOrder(orderData);
+      console.log('Order created successfully:', response);
+      alert('คำสั่งซื้อถูกบันทึกเรียบร้อยแล้ว');
+      
+      // Reset form after successful submission
+      handleCancel();
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('เกิดข้อผิดพลาดในการบันทึกคำสั่งซื้อ กรุณาลองใหม่อีกครั้ง');
+    }
   };
 
   const handleCancel = () => {
     // Reset form to initial state
-    const resetItems = initialCakeItems.map(calculateCakeItemTotals);
     setFormData({
-      bookNo: '',
-      orderNo: '',
-      type: 'chilled',
-      customerName: '',
-      fName: '',
-      lastName: '',
-      classLevel: '',
-      room: '',
-      department: '',
-      phoneNumber: '',
-      advisorTeacher: '',
-      saleDate: new Date().toISOString().split('T')[0],
-      cakeItems: resetItems,
+      customerName: "",
+      room_id: "",
+      team_id: "",
+      orderDate: new Date().toISOString().split('T')[0],
+      totalPrice: 0,
+      book_number: 0,
+      number: 0,
+      phone: "",
+      pickup_date: new Date().toISOString().split('T')[0],
+      depository: "",
+      advisor: "",
+      orderItems: [],
+      cakeItems: initialCakeItems.map(calculateCakeItemTotals),
       discount: 0,
       amountReceived: 0,
-      seller: 'A',
+      seller: ""
     });
     alert('Form cancelled and reset.');
   };
@@ -96,7 +137,7 @@ const OrderForm: React.FC = () => {
     <form onSubmit={handleSubmit} className="space-y-6">
       <h2 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">บันทึกข้อมูล</h2>
 
-      <GeneralInfoSection formData={formData} handleChange={handleGeneralInfoChange} />
+      <GeneralInfoSection formData={formData} handleChange={handleGeneralInfoChange} branches={branches} years={years} />
 
       <h3 className="text-lg font-semibold text-gray-700 mt-6 mb-3">รายละเอียดเค้ก</h3>
       <CakeDetailsTable cakeItems={formData.cakeItems} onQuantityChange={handleCakeQuantityChange} />

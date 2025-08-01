@@ -8,6 +8,9 @@ import type { OrderFormState, InputChangeEvent } from "../../types";
 interface GeneralInfoSectionProps {
   formData: OrderFormState;
   handleChange: (e: InputChangeEvent) => void;
+  branches: { id: string; name: string }[];
+  years: { id: string; level:string; year: number }[];
+  rooms: { id: string; name:string}[]
 }
 
 const orderTypeOptions = [
@@ -16,34 +19,35 @@ const orderTypeOptions = [
   { value: "notChilled", label: "ไม่แข่งขัน" },
 ];
 
-const classLevelOptions = [
-  { value: "", label: "-- เลือก --" },
-  { value: "ปวช.1", label: "ปวช.1" },
-  { value: "ปวช.2", label: "ปวช.2" },
-  { value: "ปวช.3", label: "ปวช.3" },
-  { value: "ปวส.1", label: "ปวส.1" },
-  { value: "ปวส.2", label: "ปวส.2" },
-  // Add more as needed
-];
-
-import { departments } from '../../data/department-data';
-
-const departmentOptions = [
-  { value: '', label: '-- เลือก --' },
-  ...departments.map(dept => ({ value: dept, label: dept }))
-];
-
 const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
   formData,
   handleChange,
+  branches,
+  years,
+  rooms,
 }) => {
+  const departmentOptions = [
+    { value: "", label: "-- เลือก --" },
+    ...branches.map(branch => ({ value: branch.id, label: branch.name }))
+  ];
+
+  const roomOptions = [
+    { value: "", label: "-- เลือก --" },
+    ...rooms.map(room => ({ value: room.id, label: room.name }))
+  ];
+
+  const classLevelOptions = [
+    { value: "", label: "-- เลือก --" },
+    ...years.map(year => ({ value: year.id, label: String(year.year), level: year.level }))
+  ];
+
   return (
     <div className="grid gap-x-6 gap-y-2 mb-6">
       <div className="flex items-center space-x-4">
         <RadioGroup
           label="ประเภท"
           name="type"
-          selectedValue={formData.type}
+          selectedValue={formData.team_id ?? ""}
           options={orderTypeOptions}
           onChange={handleChange}
           className="mb-0"
@@ -52,7 +56,7 @@ const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
           <InputField
             label="Book"
             name="bookNo"
-            value={formData.bookNo}
+            value={formData.book_number}
             onChange={handleChange}
             className="flex-1 mb-0"
             inputClassName="max-w-[150px] p-2 border rounded-md"
@@ -60,7 +64,7 @@ const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
           <InputField
             label="No."
             name="orderNo"
-            value={formData.orderNo}
+            value={formData.number}
             onChange={handleChange}
             className="flex-1 mb-0"
             inputClassName="max-w-[150px] p-2 border rounded-md"
@@ -92,15 +96,16 @@ const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
         <SelectField
           label="ระดับชั้น"
           name="classLevel"
-          value={formData.classLevel}
+          value={formData.gradelevel}
           options={classLevelOptions}
           onChange={handleChange}
           className="mb-0"
         />
-        <InputField
+        <SelectField
           label="ห้อง"
           name="room"
-          value={formData.room}
+          value={formData.room_id || ''}
+          options={roomOptions}
           onChange={handleChange}
           className="mb-0"
         />
@@ -115,7 +120,7 @@ const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
         <InputField
           label="เบอร์โทรศัพท์"
           name="phoneNumber"
-          value={formData.phoneNumber}
+          value={formData.phone}
           onChange={handleChange}
           type="tel"
           placeholder="e.g., 0812345678"
@@ -124,13 +129,13 @@ const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
         <InputField
           label="ครูที่ปรึกษา"
           name="advisorTeacher"
-          value={formData.advisorTeacher}
+          value={formData.advisor}
           onChange={handleChange}
         />
         <InputField
           label="วันที่รับเค้ก"
           name="saleDate"
-          value={formData.saleDate}
+          value={formData.pickup_date}
           onChange={handleChange}
           type="date"
           className="mb-0"
