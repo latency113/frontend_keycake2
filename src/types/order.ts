@@ -70,11 +70,14 @@ export interface years {
   id: string;
   level: string;
   year: number;
+  branch_id: string;
 }
 [];
 export interface rooms {
   id: string;
   name: string;
+  year_id: string;
+  branch_id: string; // Add this property to match usage in GeneralInfoSection
 }
 [];
 

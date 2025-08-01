@@ -34,25 +34,31 @@ const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
   const [filteredYears, setFilteredYears] = useState<years[]>([]);
   const [filteredRooms, setFilteredRooms] = useState<rooms[]>([]);
 
-  // กรองชั้นปี (years) ตามห้องที่เลือก
+  // แก้ไขใหม่: กรองปีตามแผนก
   useEffect(() => {
-    if (formData.room_id) {
-      const roomYears = years.filter((year) => year.room_id === formData.room_id);
-      setFilteredYears(roomYears);
+    if (formData.branch_id) {
+      const branchYears = years.filter((year) =>
+        year.rooms?.some((room) => room.branch_id == formData.branch_id)
+      );
+      setFilteredYears(branchYears);
     } else {
       setFilteredYears([]);
     }
-  }, [formData.room_id, years]);
+  }, [formData.branch_id, years]);
 
-  // กรองห้อง (rooms) ตามสาขาที่เลือก
+  // แก้ไขใหม่: กรองห้องตามชั้นปี
   useEffect(() => {
-    if (formData.branch_id) {
-      const filtered = rooms.filter((room) => room.branch_id === formData.branch_id);
+    if (formData.year_id) {
+      const selectedYear = years.find((year) => year.id === formData.year_id);
+      const filtered =
+        selectedYear?.rooms?.filter(
+          (room) => room.branch_id == formData.branch_id
+        ) ?? [];
       setFilteredRooms(filtered);
     } else {
       setFilteredRooms([]);
     }
-  }, [formData.branch_id, rooms]);
+  }, [formData.year_id, formData.branch_id, years]);
 
   const departmentOptions = [
     { value: "", label: "-- เลือก --" },
@@ -75,23 +81,21 @@ const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
     ...(filteredYears || []).map((year) => ({
       value: year.id,
       label: `${year.level === "VOCATIONAL" ? "ปวช" : "ปวส"} ${year.year}`,
-      level: year.level,
     })),
   ];
 
   const handleBranchChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { value } = e.target;
     handleChange(e);
-    if (value === "") {
-      formData.year_id = "";
-      formData.room_id = "";
-    }
+    formData.year_id = "";
+    formData.room_id = "";
+    setFilteredYears([]);
+    setFilteredRooms([]);
   };
 
-  const handleRoomChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { value } = e.target;
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     handleChange(e);
-    formData.year_id = ""; // รีเซ็ตเมื่อเลือกห้องใหม่
+    formData.room_id = "";
+    setFilteredRooms([]);
   };
 
   return (
@@ -108,7 +112,7 @@ const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
         <div className="flex space-x-4">
           <InputField
             label="Book"
-            name="bookNo"
+            name="book_number"
             value={formData.book_number}
             onChange={handleChange}
             className="flex-1 mb-0"
@@ -116,7 +120,7 @@ const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
           />
           <InputField
             label="No."
-            name="orderNo"
+            name="number"
             value={formData.number}
             onChange={handleChange}
             className="flex-1 mb-0"
@@ -134,36 +138,17 @@ const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
         />
         <InputField
           label="ชื่อ"
-          name="fName"
+          name="fname"
           value={formData.fname}
           onChange={handleChange}
           className="mb-0"
         />
         <InputField
           label="นามสกุล"
-          name="lastName"
+          name="lastname"
           value={formData.lastname}
           onChange={handleChange}
           className="mb-0"
-        />
-
-        <SelectField
-          label="ห้อง"
-          name="room_id"
-          value={formData.room_id || ""}
-          options={roomOptions}
-          onChange={handleRoomChange}
-          className="mb-0"
-          disabled={!formData.branch_id}
-        />
-        <SelectField
-          label="ระดับชั้น"
-          name="year_id"
-          value={formData.year_id || ""}
-          options={classLevelOptions}
-          onChange={handleChange}
-          className="mb-0"
-          disabled={!formData.room_id}
         />
 
         <SelectField
@@ -172,12 +157,29 @@ const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
           value={formData.branch_id || ""}
           options={departmentOptions}
           onChange={handleBranchChange}
-          className="mb-0"
+        />
+
+        <SelectField
+          label="ระดับชั้น"
+          name="year_id"
+          value={formData.year_id || ""}
+          options={classLevelOptions}
+          onChange={handleYearChange}
+          disabled={!formData.branch_id}
+        />
+
+        <SelectField
+          label="ห้อง"
+          name="room_id"
+          value={formData.room_id || ""}
+          options={roomOptions}
+          onChange={handleChange}
+          disabled={!formData.year_id}
         />
 
         <InputField
           label="เบอร์โทรศัพท์"
-          name="phoneNumber"
+          name="phone"
           value={formData.phone}
           onChange={handleChange}
           type="tel"
@@ -186,7 +188,7 @@ const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
 
         <InputField
           label="ครูที่ปรึกษา"
-          name="advisorTeacher"
+          name="advisor"
           value={formData.advisor}
           onChange={handleChange}
         />

@@ -43,13 +43,20 @@ api.interceptors.response.use((response) => {
 
 export const createOrder = async (orderData: Order) => {
   try {
-    const response = await api.post("/order", orderData);
+    const parsedData = {
+      ...orderData,
+      book_number: Number(orderData.book_number),
+      number: Number(orderData.number),
+    };
+
+    const response = await api.post("/order", parsedData);
     return response.data;
   } catch (error) {
     console.error("Error creating order:", error);
     throw error;
   }
 };
+
 
 export const getOrder = async (id: string) => {
   try {
