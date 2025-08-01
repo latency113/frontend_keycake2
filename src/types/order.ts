@@ -35,15 +35,16 @@ export interface Order {
   year_id?: string;
 }
 
-export interface OrderFormState extends Omit<Order, 'orderDate' | 'pickup_date'> {
+export interface OrderFormState
+  extends Omit<Order, "orderDate" | "pickup_date">,
+    user,
+    years,
+    branches {
   orderDate: string;
   pickup_date: string;
   discount: number;
-  amountReceived: number;
   seller: string;
   cakeItems: CakeItem[];
-  branch_id?: string;
-  year_id?: string;
 }
 
 export interface CakeItem {
@@ -58,4 +59,27 @@ export interface CakeItem {
   qtyPieces: number;
   totalPounds: number;
   totalAmount: number;
+}
+
+export interface branches {
+  id: string;
+  name: string;
+}
+[];
+export interface years {
+  id: string;
+  level: string;
+  year: number;
+}
+[];
+export interface rooms {
+  id: string;
+  name: string;
+}
+[];
+
+export interface user {
+  fname: string;
+  lastname: string;
+  username: string;
 }

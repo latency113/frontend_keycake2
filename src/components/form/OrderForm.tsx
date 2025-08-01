@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import type { OrderFormState, CakeItem, InputChangeEvent } from '../../types';
 import { calculateGrandTotal, calculateNetPayable, calculateRemainingBalance, calculateCakeItemTotals } from '../../utils/calculations';
-import { createOrder, getBranchs, getYears } from '../../utils/api';
+import { createOrder, getBranchs, getRooms, getYears } from '../../utils/api';
 
 import GeneralInfoSection from './GeneralInfoSection';
 import CakeDetailsTable from './CakeDetailTable';
@@ -38,14 +38,17 @@ const OrderForm: React.FC = () => {
   });
   const [branches, setBranches] = useState([]);
   const [years, setYears] = useState([]);
+  const [rooms, setRooms] = useState([]);
 
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         const branchesData = await getBranchs();
         const yearsData = await getYears();
+        const roomData = await getRooms();
         setBranches(branchesData);
         setYears(yearsData);
+        setRooms(roomData);
       } catch (error) {
         console.error("Error fetching initial data:", error);
       }
@@ -137,7 +140,7 @@ const OrderForm: React.FC = () => {
     <form onSubmit={handleSubmit} className="space-y-6">
       <h2 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">บันทึกข้อมูล</h2>
 
-      <GeneralInfoSection formData={formData} handleChange={handleGeneralInfoChange} branches={branches} years={years} />
+      <GeneralInfoSection formData={formData} handleChange={handleGeneralInfoChange} branches={branches} years={years} rooms={rooms}/>
 
       <h3 className="text-lg font-semibold text-gray-700 mt-6 mb-3">รายละเอียดเค้ก</h3>
       <CakeDetailsTable cakeItems={formData.cakeItems} onQuantityChange={handleCakeQuantityChange} />

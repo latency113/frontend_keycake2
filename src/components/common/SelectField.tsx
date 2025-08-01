@@ -1,6 +1,6 @@
 // src/components/common/SelectField.tsx
-import React from 'react';
-import type { InputChangeEvent } from '../../types';
+import React from "react";
+import type { InputChangeEvent } from "../../types";
 
 interface SelectOption {
   value: string;
@@ -16,6 +16,7 @@ interface SelectFieldProps {
   className?: string;
   labelClassName?: string;
   selectClassName?: string;
+  disabled?: boolean; // Add this line
 }
 
 const SelectField: React.FC<SelectFieldProps> = ({
@@ -24,9 +25,10 @@ const SelectField: React.FC<SelectFieldProps> = ({
   value,
   options,
   onChange,
-  className = 'mb-4',
-  labelClassName = 'block text-sm font-medium text-gray-700',
-  selectClassName = 'mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2',
+  disabled,
+  className = "mb-4",
+  labelClassName = "block text-sm font-medium text-gray-700",
+  selectClassName = "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2",
 }) => {
   return (
     <div className={className}>
@@ -39,6 +41,7 @@ const SelectField: React.FC<SelectFieldProps> = ({
         value={value}
         onChange={onChange}
         className={selectClassName}
+        disabled={disabled}
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>

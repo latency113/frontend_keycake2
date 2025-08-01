@@ -1,16 +1,21 @@
-// src/components/form/GeneralInfoSection.tsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import InputField from "../common/InputField";
 import SelectField from "../common/SelectField";
 import RadioGroup from "../common/RadioGroup";
-import type { OrderFormState, InputChangeEvent } from "../../types";
+import type {
+  OrderFormState,
+  InputChangeEvent,
+  branches,
+  years,
+  rooms,
+} from "../../types";
 
 interface GeneralInfoSectionProps {
   formData: OrderFormState;
   handleChange: (e: InputChangeEvent) => void;
-  branches: { id: string; name: string }[];
-  years: { id: string; level:string; year: number }[];
-  rooms: { id: string; name:string}[]
+  branches: branches[];
+  years: years[];
+  rooms: rooms[];
 }
 
 const orderTypeOptions = [
@@ -26,20 +31,68 @@ const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
   years,
   rooms,
 }) => {
+  const [filteredYears, setFilteredYears] = useState<years[]>([]);
+  const [filteredRooms, setFilteredRooms] = useState<rooms[]>([]);
+
+  // กรองชั้นปี (years) ตามห้องที่เลือก
+  useEffect(() => {
+    if (formData.room_id) {
+      const roomYears = years.filter((year) => year.room_id === formData.room_id);
+      setFilteredYears(roomYears);
+    } else {
+      setFilteredYears([]);
+    }
+  }, [formData.room_id, years]);
+
+  // กรองห้อง (rooms) ตามสาขาที่เลือก
+  useEffect(() => {
+    if (formData.branch_id) {
+      const filtered = rooms.filter((room) => room.branch_id === formData.branch_id);
+      setFilteredRooms(filtered);
+    } else {
+      setFilteredRooms([]);
+    }
+  }, [formData.branch_id, rooms]);
+
   const departmentOptions = [
     { value: "", label: "-- เลือก --" },
-    ...branches.map(branch => ({ value: branch.id, label: branch.name }))
+    ...(branches || []).map((branch) => ({
+      value: branch.id,
+      label: branch.name,
+    })),
   ];
 
   const roomOptions = [
     { value: "", label: "-- เลือก --" },
-    ...rooms.map(room => ({ value: room.id, label: room.name }))
+    ...(filteredRooms || []).map((room) => ({
+      value: room.id,
+      label: room.name,
+    })),
   ];
 
   const classLevelOptions = [
     { value: "", label: "-- เลือก --" },
-    ...years.map(year => ({ value: year.id, label: String(year.year), level: year.level }))
+    ...(filteredYears || []).map((year) => ({
+      value: year.id,
+      label: `${year.level === "VOCATIONAL" ? "ปวช" : "ปวส"} ${year.year}`,
+      level: year.level,
+    })),
   ];
+
+  const handleBranchChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target;
+    handleChange(e);
+    if (value === "") {
+      formData.year_id = "";
+      formData.room_id = "";
+    }
+  };
+
+  const handleRoomChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target;
+    handleChange(e);
+    formData.year_id = ""; // รีเซ็ตเมื่อเลือกห้องใหม่
+  };
 
   return (
     <div className="grid gap-x-6 gap-y-2 mb-6">
@@ -82,41 +135,46 @@ const GeneralInfoSection: React.FC<GeneralInfoSectionProps> = ({
         <InputField
           label="ชื่อ"
           name="fName"
-          value={formData.fName}
+          value={formData.fname}
           onChange={handleChange}
           className="mb-0"
         />
         <InputField
           label="นามสกุล"
           name="lastName"
-          value={formData.lastName}
+          value={formData.lastname}
           onChange={handleChange}
           className="mb-0"
+        />
+
+        <SelectField
+          label="ห้อง"
+          name="room_id"
+          value={formData.room_id || ""}
+          options={roomOptions}
+          onChange={handleRoomChange}
+          className="mb-0"
+          disabled={!formData.branch_id}
         />
         <SelectField
           label="ระดับชั้น"
-          name="classLevel"
-          value={formData.gradelevel}
+          name="year_id"
+          value={formData.year_id || ""}
           options={classLevelOptions}
           onChange={handleChange}
           className="mb-0"
+          disabled={!formData.room_id}
         />
-        <SelectField
-          label="ห้อง"
-          name="room"
-          value={formData.room_id || ''}
-          options={roomOptions}
-          onChange={handleChange}
-          className="mb-0"
-        />
+
         <SelectField
           label="แผนก"
-          name="department"
-          value={formData.department || ''}
+          name="branch_id"
+          value={formData.branch_id || ""}
           options={departmentOptions}
-          onChange={handleChange}
+          onChange={handleBranchChange}
           className="mb-0"
         />
+
         <InputField
           label="เบอร์โทรศัพท์"
           name="phoneNumber"
